@@ -1,0 +1,7 @@
+{
+  "name": "vtu_result_notifier",
+  "version": "0.1.0",
+  "main": "index.js",
+  "author": "Satya Rohith <me@satyarohith.com> (https://satyarohith.com/)",
+  "license": "MIT"
+}

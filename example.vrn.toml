@@ -1,0 +1,18 @@
+# Sendgrid API key
+sendgrid = ""
+# Interval between each run in minutes
+interval = 5
+# Specifiy your scheme. Available options: `CBCS`, `NON-CBCS`, `REVAL CBCS` and`REVAL NON-CBCS`
+scheme = "CBCS"
+
+# Config to send the mail
+[mail]
+# To email address. For multiple emails, use an array: ['me@satyarohith.com', 'mail@example.com']
+to = ""
+# Email subject.
+subject = ""
+[mail.from]
+# Sender display name
+name = ""
+# Sender email address
+email = ""

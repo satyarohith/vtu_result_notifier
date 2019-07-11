@@ -1,6 +1,4 @@
-/**
- * VRN - VTU Result Notifier
- */
+'use strict';
 const fs = require('fs');
 const path = require('path');
 const axios = require('axios');
@@ -9,12 +7,14 @@ const toml = require('toml');
 const equal = require('fast-deep-equal');
 const { isToday, isPast } = require('date-fns')
 const generateHTML = require('./generatehtml');
-const { getResultsUpdatedDate, getBEAnnouncements } = require('./lib')
 
 const configPath = path.normalize(`${__dirname}/vrn.toml`);
 const config = toml.parse(fs.readFileSync(configPath, 'utf8'));
 
 const RESULTS_URL = "http://results.vtu.ac.in";
+
+let runcount = 0;
+let announcementsSnapshot;
 
 async function sendEmail(message) {
   const sgMail = require('@sendgrid/mail');
@@ -23,20 +23,68 @@ async function sendEmail(message) {
   await sgMail.send(message, true);
 }
 
+function getAnnouncements($, scheme = "CBCS") {
+  let schemeNumber = 1;
+
+  if (scheme === "NON-CBCS") schemeNumber = 2
+  else if (scheme === "REVAL CBCS") schemeNumber = 3
+  else if (scheme === "REVAL NON-CBCS") schemeNumber = 4;
+
+  const announcements = [];
+
+  $(`div.lgm-${schemeNumber} > div.logmod__form`).find('div > div.panel-heading').each((_index, element) => {
+    announcements.push({
+      text: $(element).find('b').text(),
+      url: `${RESULTS_URL}/${$(element).attr('onclick').split("'")[1]}`,
+    });
+  });
+
+  return announcements;
+}
+
+function getResultsUpdatedDate($) {
+  // This regx matches dates like 28/05/2018, 28-05-2018 and 28.05.2018.
+  const dateRegx = /\d{2}([.\-/])\d{2}\1\d{4}/;
+  const dateString = $(`div.row div.text-center > label`).text().match(dateRegx)[0];
+  const date = dateString.split('/'); // Split at `/` to seperate month, day and year.
+  // Create a valid date using the above values.
+  const resultsUpdatedDate = new Date(date[2], (date[1] - 1), date[0]);
+
+  return resultsUpdatedDate;
+}
+
+function getBEAnnouncements($, scheme) {
+  const searchResults = [];
+  const announcements = getAnnouncements($, scheme);
+
+  announcements.map((announcement) => {
+    if (announcement.text.includes("B.Tech") || announcement.text.includes("B.E")) {
+      searchResults.push(announcement);
+    }
+  });
+
+  return searchResults;
+}
+
 async function main() {
   try {
     const { data: html } = await axios.get(RESULTS_URL);
     const $ = cheerio.load(html);
-    let ancmtSnapshot;
 
     const resultsUpdatedDate = getResultsUpdatedDate($);
 
-    if (isPast(resultsUpdatedDate) && !ancmtSnapshot) {
-      ancmtSnapshot = getBEAnnouncements($);
-      console.log('Saved a snapshot of the old result.');
+    if (isPast(resultsUpdatedDate) && !announcementsSnapshot) {
+      announcementsSnapshot = getBEAnnouncements($, config.scheme);
+      console.log('Saved a snapshot of the old announcements.');
+      console.log('Snapshot:', announcementsSnapshot)
     } else if (isToday(resultsUpdatedDate)) {
-      const announcements = getBEAnnouncements($);
-      if (!equal(ancmtSnapshot, announcements)) {
+      const announcements = getBEAnnouncements($, config.scheme);
+
+      if (!equal(announcementsSnapshot, announcements)) {
+        console.log('Seems like we got some new announcements.');
+        console.log('New Announcements:', announcements);
+        console.log('Old Announcements:', announcementsSnapshot);
+
         const message = {
           to: config.mail.to,
           from: config.mail.from,
@@ -45,7 +93,8 @@ async function main() {
         };
 
         await sendEmail(message);
-        console.log('Sent email.')
+        console.log('Email sent. Shutting the program...');
+        process.exit();
       }
     }
   } catch (error) {
@@ -53,7 +102,7 @@ async function main() {
   }
 }
 
-let runcount = 0;
+console.log('Program started...')
 setInterval(async () => {
   await main();
   runcount++;

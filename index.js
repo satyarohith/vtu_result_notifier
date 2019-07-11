@@ -5,7 +5,7 @@ const axios = require('axios');
 const cheerio = require('cheerio');
 const toml = require('toml');
 const equal = require('fast-deep-equal');
-const { isToday, isPast } = require('date-fns')
+const {isToday, isPast} = require('date-fns')
 const generateHTML = require('./generatehtml');
 
 const configPath = path.normalize(`${__dirname}/vrn.toml`);
@@ -68,7 +68,7 @@ function getBEAnnouncements($, scheme) {
 
 async function main() {
   try {
-    const { data: html } = await axios.get(RESULTS_URL);
+    const {data: html} = await axios.get(RESULTS_URL);
     const $ = cheerio.load(html);
 
     const resultsUpdatedDate = getResultsUpdatedDate($);

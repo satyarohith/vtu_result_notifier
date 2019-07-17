@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 'use strict';
 const fs = require('fs');
 const path = require('path');
@@ -8,13 +9,24 @@ const equal = require('fast-deep-equal');
 const {isToday, isPast} = require('date-fns')
 const generateHTML = require('./generatehtml');
 
-const configPath = path.normalize(`${__dirname}/vrn.toml`);
-const config = toml.parse(fs.readFileSync(configPath, 'utf8'));
-
-const RESULTS_URL = "http://results.vtu.ac.in";
-
+let config;
 let runcount = 0;
 let announcementsSnapshot;
+
+try {
+  const configPath = path.normalize(`${process.cwd()}/vrn.toml`);
+  config = toml.parse(fs.readFileSync(configPath, 'utf8'));
+} catch (err) {
+  if (err.code = 'ENOENT') {
+    console.error(`Please create a vrn.toml config file at the current working directory.`);
+    console.log(`Refer: https://git.io/fj13W`)
+  } else {
+    throw err;
+  }
+  process.exit(1);
+}
+
+const RESULTS_URL = "http://results.vtu.ac.in";
 
 async function sendEmail(message) {
   const sgMail = require('@sendgrid/mail');
@@ -24,9 +36,10 @@ async function sendEmail(message) {
 }
 
 function getAnnouncements($, scheme = "CBCS") {
-  let schemeNumber = 1;
+  let schemeNumber;
 
-  if (scheme === "NON-CBCS") schemeNumber = 2
+  if (scheme = "CBCS") schemeNumber = 1
+  else if (scheme === "NON-CBCS") schemeNumber = 2
   else if (scheme === "REVAL CBCS") schemeNumber = 3
   else if (scheme === "REVAL NON-CBCS") schemeNumber = 4;
 
@@ -106,5 +119,5 @@ console.log('Program started...')
 setInterval(async () => {
   await main();
   runcount++;
-  console.log(`I ran for ${runcount} times`);
+  console.log(`I visited ${RESULTS_URL} for ${runcount} times.`);
 }, (config.interval * 1000 * 60));

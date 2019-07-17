@@ -18,7 +18,7 @@ try {
   config = toml.parse(fs.readFileSync(configPath, 'utf8'));
 } catch (err) {
   if (err.code = 'ENOENT') {
-    console.error(`Please create a vrn.toml config file at the current working directory.`);
+    console.error(`Please create a vrn.toml config file at the root of current working directory.`);
     console.log(`Refer: https://git.io/fj13W`)
   } else {
     throw err;
@@ -111,7 +111,7 @@ async function main() {
       }
     }
   } catch (error) {
-    console.error(error);
+    console.error(`[ERROR] ${error.message}`);
   }
 }
 
@@ -119,5 +119,5 @@ console.log('Program started...')
 setInterval(async () => {
   await main();
   runcount++;
-  console.log(`I visited ${RESULTS_URL} for ${runcount} times.`);
+  console.log(`[${new Date().toLocaleTimeString()}] I visited ${RESULTS_URL} for ${runcount} times.`);
 }, (config.interval * 1000 * 60));

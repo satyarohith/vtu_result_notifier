@@ -1,19 +1,27 @@
 # VTU Result Notifier
+> Get an email when new results are released.
 
-### What should this software do?
+### What does this do?
 
-Whenever VTU (The institute) releases a new result, VRN (VTU Result Notifier) will send an email to the subscribed consumers along with a link to check their results.
+VRN visits the results website of VTU on specified intervals and checks for new results. If it finds any new announcements related to B.Tech/B.E, it will notify via email.
 
-### How does it work?
+**Note**: Make sure to run this script before any new announcement, because it uses previously made announcements to distinguish new ones.
 
-When a human wants to check results, He will go to the website and see if there is a new announcement.
+## Install
+Install [nodejs](https://nodejs.org) & then run the below command.
+```sh
+npm i -g vrn
+```
 
-In the same way, we will create a bot that will go to the website on specified interval and check whether a new announcement has been made.
+## Usage
 
-#### How to check if a new announcement is made?
+Create a `vrn.toml` file somewhere and fill all the required details (See [`example.vrn.toml`](example.vrn.toml)).
 
-We grab the html of the announcemnet tab and match the text for our results. For example, to check the results of BTECH 7th Sem, we just match the text with the text in the announcement tab.
+And then cd to where `vrn.toml` is present and just run:
+```sh
+vrn
+```
 
-#### How to send email?
+## License
 
-We will use sendgrid to send emails. We need to grab an API key from sendgrid and use their node package to send emails.
+MIT © [Satya Rohith](https://satyarohith.com)

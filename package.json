@@ -1,9 +1,24 @@
 {
-  "name": "vtu_result_notifier",
+  "name": "vrn",
   "version": "0.1.0",
   "main": "index.js",
   "author": "Satya Rohith <me@satyarohith.com> (https://satyarohith.com/)",
   "license": "MIT",
+  "bin": {
+    "vrn": "./index.js",
+    "vtu_results_notifier": "./index.js"
+  },
+  "files": [
+    "index.js",
+    "generatehtml.js"
+  ],
+  "keywords": [
+    "vtu",
+    "results",
+    "btech",
+    "be",
+    "notifier"
+  ],
   "dependencies": {
     "@sendgrid/mail": "^6.4.0",
     "axios": "^0.19.0",

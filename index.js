@@ -12,6 +12,7 @@ const generateHTML = require('./generatehtml');
 let config;
 let runcount = 0;
 let announcementsSnapshot;
+const RESULTS_URL = "http://results.vtu.ac.in";
 
 try {
   const configPath = path.normalize(`${process.cwd()}/vrn.toml`);
@@ -25,8 +26,6 @@ try {
   }
   process.exit(1);
 }
-
-const RESULTS_URL = "http://results.vtu.ac.in";
 
 async function sendEmail(message) {
   const sgMail = require('@sendgrid/mail');

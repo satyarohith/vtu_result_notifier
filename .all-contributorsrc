@@ -1,0 +1,26 @@
+{
+  "files": [
+    "README.md"
+  ],
+  "imageSize": 100,
+  "commit": false,
+  "contributors": [
+    {
+      "login": "satyarohith",
+      "name": "Satya Rohith",
+      "avatar_url": "https://avatars2.githubusercontent.com/u/29819102?v=4",
+      "profile": "https://satyarohith.com",
+      "contributions": [
+        "ideas",
+        "code",
+        "bug",
+        "doc"
+      ]
+    }
+  ],
+  "contributorsPerLine": 7,
+  "projectName": "vtu_result_notifier",
+  "projectOwner": "satyarohith",
+  "repoType": "github",
+  "repoHost": "https://github.com"
+}

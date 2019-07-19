@@ -17,7 +17,7 @@ npm i -g vrn
 
 ## Usage
 
-Create a `vrn.toml` file somewhere and fill all the required details (See [`example.vrn.toml`](example.vrn.toml)).
+First, grab an API key from [SendGrid](https://sendgrid.com/solutions/email-api/), then create a `vrn.toml` file somewhere and fill all the required details (See [`example.vrn.toml`](example.vrn.toml)).
 
 And then cd to where `vrn.toml` is present and just run:
 ```sh

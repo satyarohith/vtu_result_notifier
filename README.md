@@ -1,4 +1,5 @@
 # VTU Result Notifier
+[![All Contributors](https://img.shields.io/badge/all_contributors-1-orange.svg?style=flat-square)](#contributors)
 > Get an email when new results are released.
 
 ### What does this do?
@@ -25,3 +26,18 @@ vrn
 ## License
 
 MIT © [Satya Rohith](https://satyarohith.com)
+## Contributors ✨
+
+Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/docs/en/emoji-key)):
+
+<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
+<!-- prettier-ignore -->
+<table>
+  <tr>
+    <td align="center"><a href="https://satyarohith.com"><img src="https://avatars2.githubusercontent.com/u/29819102?v=4" width="100px;" alt="Satya Rohith"/><br /><sub><b>Satya Rohith</b></sub></a><br /><a href="#ideas-satyarohith" title="Ideas, Planning, & Feedback">🤔</a> <a href="https://github.com/satyarohith/vtu_result_notifier/commits?author=satyarohith" title="Code">💻</a> <a href="https://github.com/satyarohith/vtu_result_notifier/issues?q=author%3Asatyarohith" title="Bug reports">🐛</a> <a href="https://github.com/satyarohith/vtu_result_notifier/commits?author=satyarohith" title="Documentation">📖</a></td>
+  </tr>
+</table>
+
+<!-- ALL-CONTRIBUTORS-LIST:END -->
+
+This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification. Contributions of any kind welcome!

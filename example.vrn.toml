@@ -4,6 +4,8 @@ sendgrid = ""
 interval = 5
 # Specifiy your scheme. Available options: `CBCS`, `NON-CBCS`, `REVAL CBCS` and`REVAL NON-CBCS`
 scheme = "CBCS"
+# Results URL
+results_url = "https://results.vtu.ac.in"
 
 # Config to send the mail
 [mail]

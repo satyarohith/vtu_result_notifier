@@ -2,25 +2,33 @@
 'use strict';
 const fs = require('fs');
 const path = require('path');
+const https = require('https');
 const axios = require('axios');
 const cheerio = require('cheerio');
 const toml = require('toml');
+const {dim, green} = require('chalk');
 const equal = require('fast-deep-equal');
-const {isToday, isPast} = require('date-fns')
+const {isToday, isPast} = require('date-fns');
 const generateHTML = require('./generatehtml');
 
 let config;
 let runcount = 0;
 let announcementsSnapshot;
-const RESULTS_URL = "http://results.vtu.ac.in";
+
+const logTime = () =>
+  `[${dim(String(new Date().toLocaleDateString()))}|${green(
+    new Date().toLocaleTimeString()
+  )}]`;
 
 try {
   const configPath = path.normalize(`${process.cwd()}/vrn.toml`);
   config = toml.parse(fs.readFileSync(configPath, 'utf8'));
 } catch (err) {
-  if (err.code = 'ENOENT') {
-    console.error(`Please create a vrn.toml config file at the root of current working directory.`);
-    console.log(`Refer: https://git.io/fj13W`)
+  if ((err.code = 'ENOENT')) {
+    console.error(
+      `Please create a vrn.toml config file at the root of current working directory.`
+    );
+    console.log(`Refer: https://git.io/fj13W`);
   } else {
     throw err;
   }
@@ -34,22 +42,30 @@ async function sendEmail(message) {
   await sgMail.send(message, true);
 }
 
-function getAnnouncements($, scheme = "CBCS") {
+function getAnnouncements($, scheme = 'CBCS') {
   let schemeNumber;
 
-  if (scheme = "CBCS") schemeNumber = 1
-  else if (scheme === "NON-CBCS") schemeNumber = 2
-  else if (scheme === "REVAL CBCS") schemeNumber = 3
-  else if (scheme === "REVAL NON-CBCS") schemeNumber = 4;
+  if ((scheme = 'CBCS')) schemeNumber = 1;
+  else if (scheme === 'NON-CBCS') schemeNumber = 2;
+  else if (scheme === 'REVAL CBCS') schemeNumber = 3;
+  else if (scheme === 'REVAL NON-CBCS') schemeNumber = 4;
 
   const announcements = [];
 
-  $(`div.lgm-${schemeNumber} > div.logmod__form`).find('div > div.panel-heading').each((_index, element) => {
-    announcements.push({
-      text: $(element).find('b').text(),
-      url: `${RESULTS_URL}/${$(element).attr('onclick').split("'")[1]}`,
+  $(`div.lgm-${schemeNumber} > div.logmod__form`)
+    .find('div > div.panel-heading')
+    .each((_index, element) => {
+      announcements.push({
+        text: $(element)
+          .find('b')
+          .text(),
+        url: `${config.results_url}/${
+          $(element)
+            .attr('onclick')
+            .split("'")[1]
+        }`
+      });
     });
-  });
 
   return announcements;
 }
@@ -57,10 +73,12 @@ function getAnnouncements($, scheme = "CBCS") {
 function getResultsUpdatedDate($) {
   // This regx matches dates like 28/05/2018, 28-05-2018 and 28.05.2018.
   const dateRegx = /\d{2}([.\-/])\d{2}\1\d{4}/;
-  const dateString = $(`div.row div.text-center > label`).text().match(dateRegx)[0];
+  const dateString = $(`div.row div.text-center > label`)
+    .text()
+    .match(dateRegx)[0];
   const date = dateString.split('/'); // Split at `/` to seperate month, day and year.
   // Create a valid date using the above values.
-  const resultsUpdatedDate = new Date(date[2], (date[1] - 1), date[0]);
+  const resultsUpdatedDate = new Date(date[2], date[1] - 1, date[0]);
 
   return resultsUpdatedDate;
 }
@@ -69,8 +87,11 @@ function getBEAnnouncements($, scheme) {
   const searchResults = [];
   const announcements = getAnnouncements($, scheme);
 
-  announcements.map((announcement) => {
-    if (announcement.text.includes("B.Tech") || announcement.text.includes("B.E")) {
+  announcements.map(announcement => {
+    if (
+      announcement.text.includes('B.Tech') ||
+      announcement.text.includes('B.E')
+    ) {
       searchResults.push(announcement);
     }
   });
@@ -80,22 +101,26 @@ function getBEAnnouncements($, scheme) {
 
 async function main() {
   try {
-    const {data: html} = await axios.get(RESULTS_URL);
+    const {data: html} = await axios.get(config.results_url, {
+      httpsAgent: new https.Agent({
+        rejectUnauthorized: false
+      })
+    });
     const $ = cheerio.load(html);
 
     const resultsUpdatedDate = getResultsUpdatedDate($);
 
     if (isPast(resultsUpdatedDate) && !announcementsSnapshot) {
       announcementsSnapshot = getBEAnnouncements($, config.scheme);
-      console.log('Saved a snapshot of the old announcements.');
-      console.log('Snapshot:', announcementsSnapshot)
+      console.log(`${logTime()} Saved a snapshot of the old announcements.`);
+      console.log(`${logTime()} Snapshot:`, announcementsSnapshot);
     } else if (isToday(resultsUpdatedDate)) {
       const announcements = getBEAnnouncements($, config.scheme);
 
       if (!equal(announcementsSnapshot, announcements)) {
-        console.log('Seems like we got some new announcements.');
-        console.log('New Announcements:', announcements);
-        console.log('Old Announcements:', announcementsSnapshot);
+        console.log(`${logTime()} Seems like we got some new announcements.`);
+        console.log(`${logTime()} New Announcements:`, announcements);
+        console.log(`${logTime()} Old Announcements:`, announcementsSnapshot);
 
         const message = {
           to: config.mail.to,
@@ -105,18 +130,20 @@ async function main() {
         };
 
         await sendEmail(message);
-        console.log('Email sent. Shutting the program...');
+        console.log(`${logTime()} Email sent. Shutting the program...`);
         process.exit();
       }
     }
   } catch (error) {
-    console.error(`[ERROR] ${error.message}`);
+    console.error(`${logTime()} ${error.message}`);
   }
 }
 
-console.log('Program started...')
+console.log(`${logTime()} Program started...`);
 setInterval(async () => {
   await main();
   runcount++;
-  console.log(`[${new Date().toLocaleTimeString()}] I visited ${RESULTS_URL} for ${runcount} times.`);
-}, (config.interval * 1000 * 60));
+  console.log(
+    `${logTime()} I visited ${config.results_url} for ${runcount} times.`
+  );
+}, config.interval * 1000 * 60);

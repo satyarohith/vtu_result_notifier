@@ -1,7 +1,7 @@
-module.exports = (announcements) => {
+module.exports = announcements => {
   let links = '';
-  announcements.map(anc => {
-    links += `<p style="font-size: 14px; line-height: 16px; margin: 0;"><a href="${anc.url}" rel="noopener" style="text-decoration: underline; color: #0068A5;" target="_blank">${anc.text}</p><br>`
+  announcements.forEach(anc => {
+    links += `<p style="font-size: 14px; line-height: 16px; margin: 0;"><a href="${anc.url}" rel="noopener" style="text-decoration: underline; color: #0068A5;" target="_blank">${anc.text}</p><br>`;
   });
 
   return `
@@ -164,4 +164,4 @@ module.exports = (announcements) => {
   </body>
   </html>
   `;
-}
+};

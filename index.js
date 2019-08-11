@@ -23,15 +23,28 @@ const logTime = () =>
 try {
   const configPath = path.normalize(`${process.cwd()}/vrn.toml`);
   config = toml.parse(fs.readFileSync(configPath, 'utf8'));
-} catch (err) {
-  if ((err.code = 'ENOENT')) {
-    console.error(
-      `Please create a vrn.toml config file at the root of current working directory.`
+  if (
+    !(typeof config.interval === 'number') ||
+    !(typeof config.sendgrid === 'string') ||
+    !(typeof config.mail === 'object') ||
+    !(typeof config.results_url === 'string') ||
+    !(typeof config.scheme === 'string')
+  ) {
+    console.log(
+      `${logTime()} The vrn.toml file isn't properly configured. Please refer: https://git.io/fj13W`
     );
-    console.log(`Refer: https://git.io/fj13W`);
-  } else {
-    throw err;
+    process.exit(1);
   }
+} catch (error) {
+  if (error.code === 'ENOENT') {
+    console.error(
+      'Please create a vrn.toml config file at the root of current working directory.'
+    );
+    console.log('Refer: https://git.io/fj13W');
+  } else {
+    throw error;
+  }
+
   process.exit(1);
 }
 
@@ -44,11 +57,12 @@ async function sendEmail(message) {
 
 function getAnnouncements($, scheme = 'CBCS') {
   let schemeNumber;
-
-  if ((scheme = 'CBCS')) schemeNumber = 1;
+  /* eslint-disable curly */
+  if (scheme === 'CBCS') schemeNumber = 1;
   else if (scheme === 'NON-CBCS') schemeNumber = 2;
   else if (scheme === 'REVAL CBCS') schemeNumber = 3;
   else if (scheme === 'REVAL NON-CBCS') schemeNumber = 4;
+  /* eslint-enable curly */
 
   const announcements = [];
 
@@ -62,6 +76,7 @@ function getAnnouncements($, scheme = 'CBCS') {
         url: `${config.results_url}/${
           $(element)
             .attr('onclick')
+            // eslint-disable-next-line quotes
             .split("'")[1]
         }`
       });
@@ -73,7 +88,7 @@ function getAnnouncements($, scheme = 'CBCS') {
 function getResultsUpdatedDate($) {
   // This regx matches dates like 28/05/2018, 28-05-2018 and 28.05.2018.
   const dateRegx = /\d{2}([.\-/])\d{2}\1\d{4}/;
-  const dateString = $(`div.row div.text-center > label`)
+  const dateString = $('div.row div.text-center > label')
     .text()
     .match(dateRegx)[0];
   const date = dateString.split('/'); // Split at `/` to seperate month, day and year.
@@ -87,7 +102,7 @@ function getBEAnnouncements($, scheme) {
   const searchResults = [];
   const announcements = getAnnouncements($, scheme);
 
-  announcements.map(announcement => {
+  announcements.forEach(announcement => {
     if (
       announcement.text.includes('B.Tech') ||
       announcement.text.includes('B.E')

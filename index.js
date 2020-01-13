@@ -16,7 +16,7 @@ let runcount = 0;
 let announcementsSnapshot;
 
 const logTime = () =>
-  `${dim(String(new Date().toLocaleDateString()))} ${green(
+  `${dim(String(new Date().toLocaleDateString()))}, ${green(
     new Date().toLocaleTimeString()
   )}`;
 

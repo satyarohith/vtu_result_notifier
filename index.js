@@ -38,7 +38,7 @@ try {
 } catch (error) {
   if (error.code === 'ENOENT') {
     console.error(
-      'Please create a vrn.toml config file at the root of current working directory.'
+      'Please create a vrn.toml config file in the present working directory.'
     );
     console.log('Refer: https://git.io/fj13W');
   } else {
